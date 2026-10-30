@@ -1,0 +1,12 @@
+services:
+  netorbit:
+    build: .
+    container_name: netorbit
+    network_mode: host      # required: NetOrbit reads the LAN's ARP table and pings every device
+    cap_add: [NET_RAW]
+    volumes:
+      - netorbit-data:/data
+    restart: unless-stopped
+
+volumes:
+  netorbit-data:

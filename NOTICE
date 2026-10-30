@@ -1,0 +1,12 @@
+NetOrbit for Raspberry Pi
+=========================
+
+This is a standalone port of NetOrbit for Home Assistant
+(https://github.com/the-scott-davis/netorbit), Copyright (c) 2026 the-scott-davis,
+released under the MIT License (see LICENSE). The discovery, hub detection, topology,
+SNMP and Bonjour code, the map card (netorbit_pi/web/netorbit-card.js) and the network
+simulator (netorbit_pi/netgen.py) come from that project, adapted to run without
+Home Assistant.
+
+netorbit_pi/web/icons.js contains icons from Material Design Icons
+(https://pictogrammers.com/library/mdi/), licensed under the Apache License 2.0.

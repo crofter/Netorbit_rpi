@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>NetOrbit login</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <form class="panel login" id="f">
+      <h2 style="display:flex;align-items:center;gap:8px"><ha-icon icon="mdi:orbit" style="color:var(--accent)"></ha-icon>NetOrbit</h2>
+      <label class="field" style="margin-top:12px"><span>Password</span><input type="password" name="password" autocomplete="current-password" required autofocus></label>
+      <div class="actions"><button class="btn go" type="submit">Log in</button></div>
+      <p class="small" id="msg" role="alert"></p>
+      <p class="small">Forgot it? On the Pi run <code>sudo netorbit-pi --reset-password</code>.</p>
+    </form>
+  </main>
+  <script src="/static/icons.js"></script>
+  <script src="/static/shim.js"></script>
+  <script src="/static/common.js"></script>
+  <script>
+    document.getElementById("f").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("msg");
+      msg.textContent = "";
+      try {
+        await window.NO.api("/api/login", { password: e.target.password.value });
+        location.href = "/";
+      } catch (err) {
+        msg.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

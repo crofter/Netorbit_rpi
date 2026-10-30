@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>NetOrbit</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><ha-icon icon="mdi:orbit"></ha-icon>NetOrbit</a>
+    <div class="status" id="status"><i class="dot"></i><span>Loading…</span></div>
+    <button class="navbtn" id="scan" title="Scan the whole network now"><ha-icon icon="mdi:radar"></ha-icon><span class="lbl">Scan now</span></button>
+    <a class="navbtn" href="/settings" title="Settings"><ha-icon icon="mdi:cog"></ha-icon><span class="lbl">Settings</span></a>
+    <button class="navbtn" id="logout" title="Log out" hidden><ha-icon icon="mdi:logout"></ha-icon></button>
+  </header>
+  <main>
+    <div class="notice" id="notice" hidden></div>
+    <div id="map"><div class="empty">Loading…</div></div>
+  </main>
+  <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Device history">
+    <header><h2></h2><button class="iconbtn close" title="Close"><ha-icon icon="mdi:close"></ha-icon></button></header>
+    <div class="body"></div>
+  </aside>
+  <script src="/static/icons.js"></script>
+  <script src="/static/shim.js"></script>
+  <script src="/static/netorbit-card.js"></script>
+  <script src="/static/common.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>NetOrbit settings</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><ha-icon icon="mdi:orbit"></ha-icon>NetOrbit</a>
+    <div class="status" id="status"><i class="dot"></i><span>Loading…</span></div>
+    <a class="navbtn primary" href="/"><ha-icon icon="mdi:radar"></ha-icon><span class="lbl">Map</span></a>
+    <button class="navbtn" id="logout" title="Log out" hidden><ha-icon icon="mdi:logout"></ha-icon></button>
+  </header>
+  <main>
+    <nav class="tabs" id="tabs">
+      <button data-tab="network">Network</button>
+      <button data-tab="hubs">Hubs</button>
+      <button data-tab="devices">Devices</button>
+      <button data-tab="paste">Paste a client list</button>
+      <button data-tab="notify">Notifications</button>
+      <button data-tab="security">Password &amp; backup</button>
+    </nav>
+
+    <section data-panel="network" hidden>
+      <form class="panel" id="f-network">
+        <h2>Your network</h2>
+        <p class="lead">NetOrbit fills these in on first start. Change them if your Pi sits on a different network.</p>
+        <div class="grid">
+          <label class="field"><span>Subnet</span><input type="text" name="subnet" placeholder="192.168.1.0/24" required><small>Up to 1024 addresses (a /22).</small></label>
+          <label class="field"><span>Router</span><input type="text" name="gateway" placeholder="192.168.1.1" required><small>The center of the map.</small></label>
+          <label class="field"><span>Tracking mode</span>
+            <select name="mode"><option value="auto">Automatic: track everything found</option><option value="manual">Manual: only devices I add</option></select>
+            <small>In manual mode new devices wait under “New devices”.</small></label>
+        </div>
+        <h3>Timing</h3>
+        <div class="grid">
+          <label class="field"><span>Ping every (seconds)</span><input type="number" name="ping_interval" min="10" max="3600"></label>
+          <label class="field"><span>Full sweep every (seconds)</span><input type="number" name="discovery_interval" min="60" max="86400"></label>
+          <label class="field"><span>“Not seen” after (hours)</span><input type="number" name="stale_hours" min="1" max="720"><small>Yellow before this, red after.</small></label>
+        </div>
+        <h3>Finding things</h3>
+        <div class="grid">
+          <label class="check"><input type="checkbox" name="ignore_random_mac"><span>Ignore randomized MAC addresses<small>Phones and laptops use private addresses that can change.</small></span></label>
+          <label class="check"><input type="checkbox" name="auto_hubs"><span>Add obvious hubs automatically<small>Otherwise they show as suggestions to confirm.</small></span></label>
+          <label class="check"><input type="checkbox" name="group_by_type"><span>Group unplaced devices by type<small>TV &amp; media, computers, cameras, smart home.</small></span></label>
+          <label class="check"><input type="checkbox" name="snmp_enabled"><span>Read switch tables over SNMP<small>Read-only. Places devices behind the right switch port.</small></span></label>
+          <label class="field"><span>SNMP community</span><input type="text" name="snmp_community" placeholder="public" autocomplete="off"><small>Only sent to hubs and network gear. Leave empty for “public”.</small></label>
+        </div>
+        <div class="actions"><button class="btn go" type="submit">Save</button></div>
+      </form>
+    </section>
+
+    <section data-panel="hubs" hidden>
+      <div class="panel" id="suggested-panel" hidden>
+        <h2>Possible hubs</h2>
+        <p class="lead">NetOrbit thinks these might be routers, switches or access points.</p>
+        <div class="table-wrap"><table id="t-suggested"></table></div>
+      </div>
+      <div class="panel">
+        <h2>Hubs</h2>
+        <p class="lead">Routers, switches, access points and mesh nodes. Devices orbit the hub they connect through.</p>
+        <div class="table-wrap"><table id="t-hubs"></table></div>
+        <div class="actions"><button class="btn go" id="add-hub">Add a hub</button></div>
+      </div>
+    </section>
+
+    <section data-panel="devices" hidden>
+      <div class="panel" id="new-panel" hidden>
+        <h2>New devices</h2>
+        <p class="lead">Found on the network but not tracked (manual mode).</p>
+        <div class="table-wrap"><table id="t-new"></table></div>
+      </div>
+      <div class="panel">
+        <h2>Devices</h2>
+        <div class="actions" style="margin:0 0 10px"><input class="inline-input filter" id="filter" placeholder="Filter by name, IP, MAC or maker" type="search"></div>
+        <div class="table-wrap"><table id="t-devices"></table></div>
+        <div class="actions"><button class="btn" id="add-device">Add a device by address</button></div>
+      </div>
+      <div class="panel" id="ignored-panel" hidden>
+        <h2>Ignored</h2>
+        <div class="table-wrap"><table id="t-ignored"></table></div>
+      </div>
+    </section>
+
+    <section data-panel="paste" hidden>
+      <form class="panel" id="f-paste">
+        <h2>Paste a client list</h2>
+        <p class="lead">Copy the list of connected clients from an access point's web page, a mesh app or a switch, paste it here and pick the hub. Every MAC or IP address in the text is placed under that hub.</p>
+        <div class="grid">
+          <label class="field"><span>These devices connect through</span><select name="hub" required></select></label>
+          <label class="check"><input type="checkbox" name="add_missing" checked><span>Also add MAC addresses NetOrbit hasn't seen yet</span></label>
+        </div>
+        <label class="field" style="margin-top:12px"><span>Client list</span><textarea name="text" required placeholder="Paste anything: a table, CSV, a screenshot's text…"></textarea></label>
+        <div class="actions"><button class="btn go" type="submit">Place them</button></div>
+        <div class="result" id="paste-result"></div>
+      </form>
+    </section>
+
+    <section data-panel="notify" hidden>
+      <form class="panel" id="f-notify">
+        <h2>Notifications</h2>
+        <p class="lead">NetOrbit can tell you when something new joins your network or a device goes quiet.</p>
+        <div class="grid">
+          <label class="field"><span>ntfy topic URL</span><input type="url" name="ntfy_url" placeholder="https://ntfy.sh/my-network-x7k2"><small>Install the ntfy app and subscribe to the same topic. Pick a hard-to-guess name.</small></label>
+          <label class="field"><span>Webhook URL</span><input type="url" name="webhook_url" placeholder="http://nodered.local:1880/netorbit"><small>Receives a JSON POST: event, name, ip, mac.</small></label>
+        </div>
+        <h3>Send a notification when</h3>
+        <div class="grid">
+          <label class="check"><input type="checkbox" name="ev_netorbit_new_device"><span>A new device joins</span></label>
+          <label class="check"><input type="checkbox" name="ev_netorbit_device_stale"><span>A device hasn't been seen for the “not seen” time<small>Devices allowed to sleep never trigger this.</small></span></label>
+          <label class="check"><input type="checkbox" name="ev_netorbit_device_recovered"><span>A device that was gone comes back</span></label>
+        </div>
+        <h3>History</h3>
+        <div class="grid">
+          <label class="field"><span>Keep history for (days)</span><input type="number" name="history_days" min="1" max="3650"></label>
+        </div>
+        <div class="actions"><button class="btn go" type="submit">Save</button><button class="btn" type="button" id="test-notify">Send a test</button></div>
+      </form>
+    </section>
+
+    <section data-panel="security" hidden>
+      <form class="panel" id="f-password">
+        <h2 id="security">Admin password</h2>
+        <p class="lead" id="pw-lead"></p>
+        <div class="grid">
+          <label class="field" id="pw-current-wrap"><span>Current password</span><input type="password" name="current" autocomplete="current-password"></label>
+          <label class="field"><span>New password</span><input type="password" name="new" autocomplete="new-password" minlength="8"><small>At least 8 characters. Leave empty and save to remove the password.</small></label>
+        </div>
+        <div class="actions"><button class="btn go" type="submit">Save password</button></div>
+      </form>
+      <div class="panel">
+        <h2>Backup</h2>
+        <p class="lead">Every name, icon, hub and placement, keyed by MAC address. Restore it after reinstalling, or move it to another Pi.</p>
+        <div class="actions">
+          <button class="btn go" id="export">Download backup</button>
+          <label class="btn" style="display:inline-flex;align-items:center;gap:6px">Restore from file<input type="file" id="import-file" accept="application/json,.json" hidden></label>
+          <label class="check" style="margin-left:8px"><input type="checkbox" id="import-replace"><span>Replace instead of merge</span></label>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>About</h2>
+        <p class="small" id="about"></p>
+      </div>
+    </section>
+  </main>
+  <script src="/static/icons.js"></script>
+  <script src="/static/shim.js"></script>
+  <script src="/static/common.js"></script>
+  <script src="/static/settings.js"></script>
+</body>
+</html>

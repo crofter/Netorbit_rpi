@@ -1,0 +1,34 @@
+[Unit]
+Description=NetOrbit network map
+Documentation=https://github.com/crofter/Netorbit_rpi
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=netorbit
+Group=netorbit
+ExecStart=/opt/netorbit/venv/bin/netorbit-pi --port 8099
+StateDirectory=netorbit
+StateDirectoryMode=0700
+Restart=on-failure
+RestartSec=10
+
+# Ping needs a raw ICMP socket; nothing else is privileged.
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target
